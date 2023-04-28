@@ -689,6 +689,12 @@ function commandHandler.ProcessCommand(pid, cmd)
             local wasLoaded = false
 
             if package.loaded[scriptName] then
+                
+                if type(package.loaded[scriptName]) ~= "table" then
+		    Players[pid]:Message(scriptName .. " was already loaded but it is not a valid lua module and thus cannot be properly reloaded.\n")
+		    return
+		end
+                
                 Players[pid]:Message(scriptName .. " was already loaded, so it is being reloaded.\n")
                 wasLoaded = true
             end
@@ -1080,7 +1086,7 @@ function commandHandler.StoreRecord(pid, cmd)
                 Players[pid]:Message("Please provide the minimum number of arguments required.\n")
                 return
             else
-                inputConcatenation = tableHelper.concatenateFromIndex(cmd, 5)
+                inputConcatenation = tableHelper.concatenateFromIndex(cmd, 5, ",")
                 inputValues = tableHelper.getTableFromCommaSplit(inputConcatenation)
             end
 
