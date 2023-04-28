@@ -169,4 +169,10 @@ SaintEspToRecord.Execute = function(handler)
     end
 end
 
+-- SaintEspToRecord.Execute(function(record)
+--     if record.name ~= 'CELL' then return end
+--     print(record.name, record.flags)
+--     print(tableHelper.getPrintableTable(record.fields, 4, '\t'))
+-- end)
+
 return SaintEspToRecord
