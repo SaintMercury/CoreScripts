@@ -10,15 +10,16 @@ local BinaryStringReader = classy('BinaryStringReader')
 function BinaryStringReader:__init(binaryData)
     ---@private
     self.binaryString = binaryData
-    ---@private
+    ---@public
     self.length = #binaryData
     ---@private
     self.index = 1
 end
 
 ---@param byteCount integer
----@param type nil|string optional
----@return string|integer|number
+---@param type string
+---@return number
+---@overload fun(self: BinaryStringReader, byteCount: integer): string
 function BinaryStringReader:Read(byteCount, type)
     local result = self:_read(byteCount, true)
     if type then

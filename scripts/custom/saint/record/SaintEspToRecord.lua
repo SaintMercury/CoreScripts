@@ -5,6 +5,10 @@
 --- Ref: https://www.mwmythicmods.com/tutorials/MorrowindESPFormat.html
 --- Ref: https://en.uesp.net/wiki/Morrowind_Mod:Mod_File_Format
 -------------------------------------------------------------------------------
+
+---TODO: Find way to be more performant and memory efficient.
+---TODO: There's a lot of string copying that ideally should be avoided
+
 local io                    = require('io')
 local config                = require('config')
 local SaintLogger           = require('custom.saint.common.logger.main')
@@ -123,6 +127,9 @@ SaintEspToRecord.ReadEsp = function(filePath, recordHandler)
     local binaryStringReader = BinaryStringReader(binaryData);
     while binaryStringReader:HasData() do
         local nextRecordType = binaryStringReader:Peak(Size.INTEGER)
+        if not SupportedRecordStores[nextRecordType] then
+            logger:Warn('Unsupported record parsed: ( ' .. nextRecordType .. ' )! Will not use data!')
+        end
         local record = Parsers[nextRecordType](binaryStringReader)
         recordHandler(record)
     end
@@ -170,9 +177,7 @@ SaintEspToRecord.Execute = function(handler)
 end
 
 -- SaintEspToRecord.Execute(function(record)
---     if record.name ~= 'CELL' then return end
 --     print(record.name, record.flags)
---     print(tableHelper.getPrintableTable(record.fields, 4, '\t'))
 -- end)
 
 return SaintEspToRecord

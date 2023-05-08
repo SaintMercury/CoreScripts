@@ -18,14 +18,17 @@ local ParseSCHD = function(binaryReader, context)
 end
 
 ---@param binaryReader BinaryStringReader
-local ParseSCVR = function(binaryReader)
-    ---Saint Note: I didn't feel like doing this
-    return binaryReader:Read(binaryReader.length)
+local ParseSCVR = function(binaryReader, context)
+    local unparsedContent = binaryReader:Read(binaryReader.length)
+    local count = context['Variable Count']
+    local content = unparsedContent:split('%z')
+    assert(count == #content, 'Unexpected amount of variables!')
+    return content
 end
 
+---Interprets as a string, since we don't care
 ---@param binaryReader BinaryStringReader
-local ParseSCDT = function(binaryReader)
-    ---Saint Note: I didn't feel like doing this
+local ParseSCDT = function(binaryReader, context)
     return binaryReader:Read(binaryReader.length)
 end
 

@@ -44,8 +44,8 @@ local SupportedRecordStores = {
     [RecordTypesEnum.RECORD_TYPES.STATIC]             = true,
     [RecordTypesEnum.RECORD_TYPES.WEAPON]             = true,
 
-    [RecordTypesEnum.RECORD_TYPES.TES3]               = false,
-    [RecordTypesEnum.RECORD_TYPES.MASTER]             = false,
+    [RecordTypesEnum.RECORD_TYPES.TES3]               = false, -- "Supported"
+    [RecordTypesEnum.RECORD_TYPES.MASTER]             = false, -- "Supported"
 }
 
 return SupportedRecordStores
