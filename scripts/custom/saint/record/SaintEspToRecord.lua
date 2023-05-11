@@ -128,7 +128,9 @@ SaintEspToRecord.ReadEsp = function(filePath, recordHandler)
     while binaryStringReader:HasData() do
         local nextRecordType = binaryStringReader:Peak(Size.INTEGER)
         if not SupportedRecordStores[nextRecordType] then
-            logger:Warn('Unsupported record parsed: ( ' .. nextRecordType .. ' )! Will not use data!')
+            -- logger:Warn('Unsupported record parsed: ( ' .. nextRecordType .. ' )! Will not use data!')
+        else
+            -- logger:Verbose('Parsing: ' .. nextRecordType)
         end
         local record = Parsers[nextRecordType](binaryStringReader)
         recordHandler(record)
@@ -176,8 +178,8 @@ SaintEspToRecord.Execute = function(handler)
     end
 end
 
--- SaintEspToRecord.Execute(function(record)
---     print(record.name, record.flags)
--- end)
+SaintEspToRecord.Execute(function(record)
+    -- print(record.name, record.flags, record.fields)
+end)
 
 return SaintEspToRecord

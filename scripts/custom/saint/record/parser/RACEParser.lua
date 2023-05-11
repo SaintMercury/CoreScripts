@@ -1,20 +1,28 @@
 local BaseRecordParser = require('custom.saint.record.parser.BaseRecordParser')
 local Size             = require('custom.saint.record.parser.primitive.Size')
 local Types            = require('custom.saint.record.parser.primitive.Types')
+local HasFlag          = require('custom.saint.record.parser.primitive.Common')
 
----@param binaryReader BinaryStringReader
-local ParseNAME = function(binaryReader)
-    return binaryReader:Read(binaryReader.length)
-end
-
----@param binaryReader BinaryStringReader
-local ParseFNAM = function(binaryReader)
-    return binaryReader:Read(binaryReader.length)
-end
-
----@param binaryReader BinaryStringReader
-local ParseRADT = function(binaryReader)
+local function FlagsToObj(flagNum)
     return {
+        playable = HasFlag(flagNum, 0x1),
+        beast = HasFlag(flagNum, 0x2),
+    }
+end
+
+---@param binaryReader BinaryStringReader
+local function ParseNAME(binaryReader)
+    return binaryReader:Read(binaryReader.length)
+end
+
+---@param binaryReader BinaryStringReader
+local function ParseFNAM(binaryReader)
+    return binaryReader:Read(binaryReader.length)
+end
+
+---@param binaryReader BinaryStringReader
+local function ParseRADT(binaryReader)
+    local result = {
         skillbonues = (function()
             local list = {}
             for i = 0, 7 - 1, 1 do
@@ -43,17 +51,19 @@ local ParseRADT = function(binaryReader)
             binaryReader:Read(Size.INTEGER, Types.FLOAT),
             binaryReader:Read(Size.INTEGER, Types.FLOAT),
         },
-        flags = binaryReader:Read(Size.INTEGER, Types.UINT32),
+        rawFlags = binaryReader:Read(Size.INTEGER, Types.UINT32),
     }
+    result.flags = FlagsToObj(result.rawFlags)
+    return result
 end
 
 ---@param binaryReader BinaryStringReader
-local ParseNPCS = function(binaryReader)
+local function ParseNPCS(binaryReader)
     return binaryReader:Read(32)
 end
 
 ---@param binaryReader BinaryStringReader
-local ParseDESC = function(binaryReader)
+local function ParseDESC(binaryReader)
     return binaryReader:Read(binaryReader.length)
 end
 

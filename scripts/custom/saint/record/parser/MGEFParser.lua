@@ -1,18 +1,42 @@
 local BaseRecordParser = require('custom.saint.record.parser.BaseRecordParser')
 local Size             = require('custom.saint.record.parser.primitive.Size')
 local Types            = require('custom.saint.record.parser.primitive.Types')
+local HasFlag          = require('custom.saint.record.parser.primitive.Common')
+
+local function FlagsToObj(flagNum)
+    return {
+        targetsSkill = HasFlag(flagNum, 0x00001),
+        targetsAttribute = HasFlag(flagNum, 0x00002),
+        noDuration = HasFlag(flagNum, 0x00004),
+        noMagnitude = HasFlag(flagNum, 0x00008),
+        harmful = HasFlag(flagNum, 0x00010),
+        continuousVfx = HasFlag(flagNum, 0x00020),
+        canCastOnSelf = HasFlag(flagNum, 0x00040),
+        canCastOnTouch = HasFlag(flagNum, 0x00080),
+        canCastOnTarget = HasFlag(flagNum, 0x00100),
+        spellmaking = HasFlag(flagNum, 0x00200),
+        enchanting = HasFlag(flagNum, 0x00400),
+        negativeLighting = HasFlag(flagNum, 0x00800),
+        appliedOnce = HasFlag(flagNum, 0x01000),
+        stealth = HasFlag(flagNum, 0x02000),
+        cannotRecast = HasFlag(flagNum, 0x04000),
+        illegalDaedra = HasFlag(flagNum, 0x08000),
+        unreflectable = HasFlag(flagNum, 0x10000),
+        linkedToCaster = HasFlag(flagNum, 0x20000),
+    }
+end
 
 ---@param binaryReader BinaryStringReader
-local ParseINDX = function(binaryReader)
+local function ParseINDX(binaryReader)
     return binaryReader:Read(Size.INTEGER, Types.UINT32)
 end
 
 ---@param binaryReader BinaryStringReader
-local ParseMEDT = function(binaryReader)
-    return {
+local function ParseMEDT(binaryReader)
+    local result = {
         school = binaryReader:Read(Size.INTEGER, Types.UINT32),
         baseCost = binaryReader:Read(Size.INTEGER, Types.FLOAT),
-        flags = binaryReader:Read(Size.INTEGER, Types.UINT32),
+        rawFlags = binaryReader:Read(Size.INTEGER, Types.UINT32),
         red = binaryReader:Read(Size.INTEGER, Types.UINT32),
         green = binaryReader:Read(Size.INTEGER, Types.UINT32),
         blue = binaryReader:Read(Size.INTEGER, Types.UINT32),
@@ -20,65 +44,67 @@ local ParseMEDT = function(binaryReader)
         sizeX = binaryReader:Read(Size.INTEGER, Types.UINT32),
         sizeCap = binaryReader:Read(Size.INTEGER, Types.UINT32),
     }
+    result.flags = FlagsToObj(result.rawFlags)
+    return result
 end
 
 ---@param binaryReader BinaryStringReader
-local ParseITEX = function(binaryReader)
+local function ParseITEX(binaryReader)
     return binaryReader:Read(binaryReader.length)
 end
 
 ---@param binaryReader BinaryStringReader
-local ParseITEX = function(binaryReader)
+local function ParseITEX(binaryReader)
     return binaryReader:Read(binaryReader.length)
 end
 
 ---@param binaryReader BinaryStringReader
-local ParsePTEX = function(binaryReader)
+local function ParsePTEX(binaryReader)
     return binaryReader:Read(binaryReader.length)
 end
 
 ---@param binaryReader BinaryStringReader
-local ParseBSND = function(binaryReader)
+local function ParseBSND(binaryReader)
     return binaryReader:Read(binaryReader.length)
 end
 
 ---@param binaryReader BinaryStringReader
-local ParseCSND = function(binaryReader)
+local function ParseCSND(binaryReader)
     return binaryReader:Read(binaryReader.length)
 end
 
 ---@param binaryReader BinaryStringReader
-local ParseHSND = function(binaryReader)
+local function ParseHSND(binaryReader)
     return binaryReader:Read(binaryReader.length)
 end
 
 ---@param binaryReader BinaryStringReader
-local ParseASND = function(binaryReader)
+local function ParseASND(binaryReader)
     return binaryReader:Read(binaryReader.length)
 end
 
 ---@param binaryReader BinaryStringReader
-local ParseCVFX = function(binaryReader)
+local function ParseCVFX(binaryReader)
     return binaryReader:Read(binaryReader.length)
 end
 
 ---@param binaryReader BinaryStringReader
-local ParseBVFX = function(binaryReader)
+local function ParseBVFX(binaryReader)
     return binaryReader:Read(binaryReader.length)
 end
 
 ---@param binaryReader BinaryStringReader
-local ParseHVFX = function(binaryReader)
+local function ParseHVFX(binaryReader)
     return binaryReader:Read(binaryReader.length)
 end
 
 ---@param binaryReader BinaryStringReader
-local ParseAVFX = function(binaryReader)
+local function ParseAVFX(binaryReader)
     return binaryReader:Read(binaryReader.length)
 end
 
 ---@param binaryReader BinaryStringReader
-local ParseDESC = function(binaryReader)
+local function ParseDESC(binaryReader)
     return binaryReader:Read(binaryReader.length)
 end
 

@@ -2,25 +2,34 @@ local Size             = require('custom.saint.record.parser.primitive.Size')
 local Types            = require('custom.saint.record.parser.primitive.Types')
 local BaseFieldsParser = require('custom.saint.record.parser.BaseFieldsParser')
 local BaseRecordParser = require('custom.saint.record.parser.BaseRecordParser')
+local HasFlag          = require('custom.saint.record.parser.primitive.Common')
 
----@param binaryReader BinaryStringReader
-local ParseHEDR = function(binaryReader)
+local function FlagsToObj(flagNum)
     return {
-        version = binaryReader:Read(Size.INTEGER, Types.FLOAT),
-        flags = binaryReader:Read(Size.INTEGER),
-        author = binaryReader:Read(32),
-        description = binaryReader:Read(256),
-        recordCount = binaryReader:Read(Size.INTEGER, Types.UINT32),
+        master = HasFlag(flagNum, 0x1),
     }
 end
 
 ---@param binaryReader BinaryStringReader
-local ParseMAST = function(binaryReader)
+local function ParseHEDR(binaryReader)
+    local result = {
+        version = binaryReader:Read(Size.INTEGER, Types.FLOAT),
+        rawFlags = binaryReader:Read(Size.INTEGER, Types.UINT32),
+        author = binaryReader:Read(32),
+        description = binaryReader:Read(256),
+        recordCount = binaryReader:Read(Size.INTEGER, Types.UINT32),
+    }
+    result.flags = FlagsToObj(result.rawFlags)
+    return result
+end
+
+---@param binaryReader BinaryStringReader
+local function ParseMAST(binaryReader)
     return binaryReader:Read(binaryReader.length)
 end
 
 ---@param binaryReader BinaryStringReader
-local ParseDATA = function(binaryReader)
+local function ParseDATA(binaryReader)
     return binaryReader:Read(Size.LONG, Types.UINT64)
 end
 

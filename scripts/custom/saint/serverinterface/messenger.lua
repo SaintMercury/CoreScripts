@@ -63,7 +63,7 @@ end
 ---@param datum string
 ---@return string MessageType, string Data
 function SocketMessenger:ParseMessage(datum)
-    local i, j = string.find(datum, '%^')
+    local i, j = string.find(datum, '%' .. Delimiter)
     if not i or not j then
         return nil, nil
     end

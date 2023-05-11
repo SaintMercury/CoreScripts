@@ -1,7 +1,17 @@
-local Types              = require('custom.saint.record.parser.primitive.Types')
-local Size               = require('custom.saint.record.parser.primitive.Size')
-local BaseRecordParser   = require('custom.saint.record.parser.BaseRecordParser')
-local BaseFieldsParser   = require('custom.saint.record.parser.BaseFieldsParser')
+local Types            = require('custom.saint.record.parser.primitive.Types')
+local Size             = require('custom.saint.record.parser.primitive.Size')
+local BaseRecordParser = require('custom.saint.record.parser.BaseRecordParser')
+local BaseFieldsParser = require('custom.saint.record.parser.BaseFieldsParser')
+local HasFlag          = require('custom.saint.record.parser.primitive.Common')
+
+local function FlagsToObj(flagNum)
+    return {
+        interior           = HasFlag(flagNum, 0x01),
+        hasWater           = HasFlag(flagNum, 0x02),
+        illegalRest        = HasFlag(flagNum, 0x04),
+        behaveLikeExterior = HasFlag(flagNum, 0x80),
+    }
+end
 
 ---@param binaryReader BinaryStringReader
 local ParseNAME = function(binaryReader)
@@ -10,11 +20,13 @@ end
 
 ---@param binaryReader BinaryStringReader
 local ParseDATA = function(binaryReader)
-    return {
-        flags = binaryReader:Read(Size.INTEGER, Types.UINT32),
+    local result = {
+        rawFlags = binaryReader:Read(Size.INTEGER, Types.UINT32),
         gridX = binaryReader:Read(Size.INTEGER, Types.INT32),
         gridY = binaryReader:Read(Size.INTEGER, Types.INT32),
     }
+    result.flags = FlagsToObj(result.rawFlags)
+    return result
 end
 
 ---@param binaryReader BinaryStringReader

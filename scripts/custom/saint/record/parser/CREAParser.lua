@@ -1,36 +1,60 @@
-local Types              = require('custom.saint.record.parser.primitive.Types')
-local Size               = require('custom.saint.record.parser.primitive.Size')
-local BaseRecordParser   = require('custom.saint.record.parser.BaseRecordParser')
-local BaseFieldsParser   = require('custom.saint.record.parser.BaseFieldsParser')
-local ParseField         = require('custom.saint.record.parser.primitive.ParseField')
+local Types            = require('custom.saint.record.parser.primitive.Types')
+local Size             = require('custom.saint.record.parser.primitive.Size')
+local BaseRecordParser = require('custom.saint.record.parser.BaseRecordParser')
+local BaseFieldsParser = require('custom.saint.record.parser.BaseFieldsParser')
+local ParseField       = require('custom.saint.record.parser.primitive.ParseField')
+local HasFlag          = require('custom.saint.record.parser.primitive.Common')
+
+local function FlagsToObj(flagNum)
+    return {
+        weapon      = HasFlag(flagNum, 0x00001),
+        armor       = HasFlag(flagNum, 0x00002),
+        clothing    = HasFlag(flagNum, 0x00004),
+        books       = HasFlag(flagNum, 0x00008),
+        ingredient  = HasFlag(flagNum, 0x00010),
+        picks       = HasFlag(flagNum, 0x00020),
+        probes      = HasFlag(flagNum, 0x00040),
+        lights      = HasFlag(flagNum, 0x00080),
+        apparatus   = HasFlag(flagNum, 0x00100),
+        repaitItems = HasFlag(flagNum, 0x00200),
+        misc        = HasFlag(flagNum, 0x00400),
+        spells      = HasFlag(flagNum, 0x00800),
+        magicItems  = HasFlag(flagNum, 0x01000),
+        potions     = HasFlag(flagNum, 0x02000),
+        training    = HasFlag(flagNum, 0x04000),
+        spellmaking = HasFlag(flagNum, 0x08000),
+        enchanting  = HasFlag(flagNum, 0x10000),
+        repair      = HasFlag(flagNum, 0x20000),
+    }
+end
 
 ---@param binaryReader BinaryStringReader
-local ParseNAME = function(binaryReader)
+local function ParseNAME(binaryReader)
     return binaryReader:Read(binaryReader.length)
 end
 
 ---@param binaryReader BinaryStringReader
-local ParseMODL = function(binaryReader)
+local function ParseMODL(binaryReader)
     return binaryReader:Read(binaryReader.length)
 end
 
 ---@param binaryReader BinaryStringReader
-local ParseCNAM = function(binaryReader)
+local function ParseCNAM(binaryReader)
     return binaryReader:Read(binaryReader.length)
 end
 
 ---@param binaryReader BinaryStringReader
-local ParseFNAM = function(binaryReader)
+local function ParseFNAM(binaryReader)
     return binaryReader:Read(binaryReader.length)
 end
 
 ---@param binaryReader BinaryStringReader
-local ParseSCRI = function(binaryReader)
+local function ParseSCRI(binaryReader)
     return binaryReader:Read(binaryReader.length)
 end
 
 ---@param binaryReader BinaryStringReader
-local ParseNPDT = function(binaryReader)
+local function ParseNPDT(binaryReader)
     return {
         type = binaryReader:Read(Size.INTEGER, Types.UINT32),
         level = binaryReader:Read(Size.INTEGER, Types.UINT32),
@@ -62,17 +86,35 @@ local ParseNPDT = function(binaryReader)
 end
 
 ---@param binaryReader BinaryStringReader
-local ParseFLAG = function(binaryReader)
-    return binaryReader:Read(Size.INTEGER, Types.UINT32)
+local function ParseFLAG(binaryReader)
+    local rawFlag = binaryReader:Read(Size.INTEGER, Types.UINT32)
+    return {
+        biped           = HasFlag(rawFlag, 0x0001),
+        respawn         = HasFlag(rawFlag, 0x0002),
+        weaponAndShiled = HasFlag(rawFlag, 0x0004),
+        none            = HasFlag(rawFlag, 0x0080),
+        swims           = HasFlag(rawFlag, 0x0010),
+        flies           = HasFlag(rawFlag, 0x0020),
+        walks           = HasFlag(rawFlag, 0x0040),
+        defaultFlags    = HasFlag(rawFlag, 0x0048), -- SAINT NOTE: Typo?
+        essential       = HasFlag(rawFlag, 0x0080),
+        bloodType1      = HasFlag(rawFlag, 0x0400),
+        bloodType2      = HasFlag(rawFlag, 0x0800),
+        bloodType3      = HasFlag(rawFlag, 0x0C00),
+        bloodType4      = HasFlag(rawFlag, 0x1000),
+        bloodType5      = HasFlag(rawFlag, 0x1400),
+        bloodType6      = HasFlag(rawFlag, 0x1800),
+        bloodType7      = HasFlag(rawFlag, 0x1C00),
+    }
 end
 
 ---@param binaryReader BinaryStringReader
-local ParseXSCL = function(binaryReader)
+local function ParseXSCL(binaryReader)
     return binaryReader:Read(Size.INTEGER, Types.FLOAT)
 end
 
 ---@param binaryReader BinaryStringReader
-local ParseNPCO = function(binaryReader)
+local function ParseNPCO(binaryReader)
     return {
         objectCount = binaryReader:Read(Size.INTEGER, Types.INT32),
         objectName = binaryReader:Read(32),
@@ -80,13 +122,13 @@ local ParseNPCO = function(binaryReader)
 end
 
 ---@param binaryReader BinaryStringReader
-local ParseNPCS = function(binaryReader)
+local function ParseNPCS(binaryReader)
     return binaryReader:Read(32)
 end
 
 ---@param binaryReader  BinaryStringReader
-local ParseAIDT = function(binaryReader)
-    return {
+local function ParseAIDT(binaryReader)
+    local result = {
         hello = binaryReader:Read(Size.BYTE, Types.UINT8),
         unknown1 = binaryReader:Read(Size.BYTE, Types.UINT8),
         fight = binaryReader:Read(Size.BYTE, Types.UINT8),
@@ -95,12 +137,14 @@ local ParseAIDT = function(binaryReader)
         unknown2 = binaryReader:Read(Size.BYTE, Types.UINT8),
         unknown3 = binaryReader:Read(Size.BYTE, Types.UINT8),
         unknown4 = binaryReader:Read(Size.BYTE, Types.UINT8),
-        flags = binaryReader:Read(Size.INTEGER, Types.UINT32),
+        rawFlags = binaryReader:Read(Size.INTEGER, Types.UINT32),
     }
+    result.flags = FlagsToObj(result.rawFlags)
+    return result
 end
 
 ---@param binaryReader BinaryStringReader
-local ParseDODT = function(binaryReader)
+local function ParseDODT(binaryReader)
     return {
         posX = binaryReader:Read(Size.INTEGER, Types.FLOAT),
         posY = binaryReader:Read(Size.INTEGER, Types.FLOAT),
@@ -112,7 +156,7 @@ local ParseDODT = function(binaryReader)
 end
 
 ---@param binaryReader BinaryStringReader
-local ParseDNAM = function(binaryReader)
+local function ParseDNAM(binaryReader)
     return binaryReader:Read(binaryReader.length)
 end
 

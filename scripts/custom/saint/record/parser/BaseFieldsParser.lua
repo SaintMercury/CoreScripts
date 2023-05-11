@@ -15,7 +15,7 @@ return function(binaryReader, funcMap, compositeType, arrayType, context)
         local singularFunc = funcMap[fieldName]
         local compositeFunc = compositeType[fieldName]
         local arrayFieldName = arrayType[fieldName]
-        local data ---@type any
+        local data ---@type table
 
         -- IDK bout this, but this should PROBABLY be true
         if fields[fieldName] ~= nil and not arrayFieldName then
@@ -28,10 +28,12 @@ return function(binaryReader, funcMap, compositeType, arrayType, context)
         end
 
         ---Saint Note: Move 'DELE' to somewhere else
+        ---Saint Note: This delete likely doesn't work properly
         if fieldName == 'DELE' then
             local field = ParseField(binaryReader)
             data = DELEFieldParser(BinaryStringReader(field.data))
         elseif compositeFunc then
+            ---Saint Note: wth?
             data = compositeFunc(binaryReader, context)
         elseif singularFunc then
             local field = ParseField(binaryReader)

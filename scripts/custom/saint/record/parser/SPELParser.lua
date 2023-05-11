@@ -1,28 +1,39 @@
 local BaseRecordParser = require('custom.saint.record.parser.BaseRecordParser')
 local Size             = require('custom.saint.record.parser.primitive.Size')
 local Types            = require('custom.saint.record.parser.primitive.Types')
+local HasFlag          = require('custom.saint.record.parser.primitive.Common')
 
----@param binaryReader BinaryStringReader
-local ParseNAME = function(binaryReader)
-    return binaryReader:Read(binaryReader.length)
-end
-
----@param binaryReader BinaryStringReader
-local ParseFNAM = function(binaryReader)
-    return binaryReader:Read(binaryReader.length)
-end
-
----@param binaryReader BinaryStringReader
-local ParseSPDT = function(binaryReader)
+local function FlagsToObj(flagNum)
     return {
-        type = binaryReader:Read(Size.INTEGER, Types.UINT32),
-        spellCost = binaryReader:Read(Size.INTEGER, Types.UINT32),
-        flags = binaryReader:Read(Size.INTEGER, Types.UINT32),
+        autoCalc = HasFlag(flagNum, 0x1),
+        pcStart = HasFlag(flagNum, 0x2),
+        alwaysSucceed = HasFlag(flagNum, 0x4),
     }
 end
 
 ---@param binaryReader BinaryStringReader
-local ParseENAM = function(binaryReader)
+local function ParseNAME(binaryReader)
+    return binaryReader:Read(binaryReader.length)
+end
+
+---@param binaryReader BinaryStringReader
+local function ParseFNAM(binaryReader)
+    return binaryReader:Read(binaryReader.length)
+end
+
+---@param binaryReader BinaryStringReader
+local function ParseSPDT(binaryReader)
+    local result = {
+        type = binaryReader:Read(Size.INTEGER, Types.UINT32),
+        spellCost = binaryReader:Read(Size.INTEGER, Types.UINT32),
+        rawFlags = binaryReader:Read(Size.INTEGER, Types.UINT32),
+    }
+    result.flags = FlagsToObj(result.rawFlags)
+    return result
+end
+
+---@param binaryReader BinaryStringReader
+local function ParseENAM(binaryReader)
     return {
         effectIndex = binaryReader:Read(Size.HALFWORD, Types.UINT16),
         skill = binaryReader:Read(Size.BYTE, Types.INT8),

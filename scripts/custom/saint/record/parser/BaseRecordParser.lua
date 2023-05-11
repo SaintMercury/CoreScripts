@@ -13,8 +13,7 @@ return function(binaryReader, funcMap, compositeType, arrayType, context)
     local fieldsParser = BinaryStringReader(record.data)
     local fields = BaseFieldsParser(fieldsParser, funcMap, compositeType, arrayType, context)
     return {
-        name = record.name,
-        flags = record.flags,
+        record = record,
         fields = fields,
     }
 end
