@@ -1,5 +1,6 @@
 local BaseFieldsParser = require('custom.saint.record.parser.BaseFieldsParser')
 local BaseRecordParser = require('custom.saint.record.parser.BaseRecordParser')
+local FieldName        = require('custom.saint.record.parser.primitive.FieldName')
 local Size             = require('custom.saint.record.parser.primitive.Size')
 local Types            = require('custom.saint.record.parser.primitive.Types')
 
@@ -113,9 +114,9 @@ end
 ---@param binaryReader BinaryStringReader
 local ParseCompositeFuncVarList = function(binaryReader, context)
     local followFields = {
-        ['SCVR'] = ParseSCVR,
-        ['INTV'] = ParseINTV,
-        ['FLTV'] = ParseFLTV,
+        [FieldName.SCVR] = ParseSCVR,
+        [FieldName.INTV] = ParseINTV,
+        [FieldName.FLTV] = ParseFLTV,
     }
     local followComposities = {
     }
@@ -125,34 +126,33 @@ local ParseCompositeFuncVarList = function(binaryReader, context)
 end
 
 local funcMap = {
-    ['INAM'] = ParseINAM,
-    ['PNAM'] = ParsePNAM,
-    ['NNAM'] = ParseNNAM,
-    ['DATA'] = ParseDATA,
-    ['ONAM'] = ParseONAM,
-    ['RNAM'] = ParseRNAM,
-    ['CNAM'] = ParseCNAM,
-    ['FNAM'] = ParseFNAM,
-    ['ANAM'] = ParseANAM,
-    ['DNAM'] = ParseDNAM,
-    ['SNAM'] = ParseSNAM,
-    ['NAME'] = ParseNAME,
-    ['BNAM'] = ParseBNAM,
-    ['QSTN'] = ParseQSTN,
-    ['QSTF'] = ParseQSTF,
-    ['QSTR'] = ParseQSTR,
+    [FieldName.INAM] = ParseINAM,
+    [FieldName.PNAM] = ParsePNAM,
+    [FieldName.NNAM] = ParseNNAM,
+    [FieldName.DATA] = ParseDATA,
+    [FieldName.ONAM] = ParseONAM,
+    [FieldName.RNAM] = ParseRNAM,
+    [FieldName.CNAM] = ParseCNAM,
+    [FieldName.FNAM] = ParseFNAM,
+    [FieldName.ANAM] = ParseANAM,
+    [FieldName.DNAM] = ParseDNAM,
+    [FieldName.SNAM] = ParseSNAM,
+    [FieldName.NAME] = ParseNAME,
+    [FieldName.BNAM] = ParseBNAM,
+    [FieldName.QSTN] = ParseQSTN,
+    [FieldName.QSTF] = ParseQSTF,
+    [FieldName.QSTR] = ParseQSTR,
 }
 
 local compositeGroup = {
-    ['SCVR'] = ParseCompositeFuncVarList,
+    [FieldName.SCVR] = ParseCompositeFuncVarList,
 }
 
 local arrayType = {
-    ['SCVR'] = 'FunctionVariableList',
+    [FieldName.SCVR] = 'FunctionVariableList',
 }
 
 ---@param binaryReader BinaryStringReader
 return function(binaryReader)
-    assert(binaryReader:Peak(Size.INTEGER) == 'INFO')
     return BaseRecordParser(binaryReader, funcMap, compositeGroup, arrayType)
 end

@@ -1,8 +1,9 @@
-local Size             = require('custom.saint.record.parser.primitive.Size')
-local Types            = require('custom.saint.record.parser.primitive.Types')
 local BaseFieldsParser = require('custom.saint.record.parser.BaseFieldsParser')
 local BaseRecordParser = require('custom.saint.record.parser.BaseRecordParser')
 local HasFlag          = require('custom.saint.record.parser.primitive.Common')
+local FieldName        = require('custom.saint.record.parser.primitive.FieldName')
+local Size             = require('custom.saint.record.parser.primitive.Size')
+local Types            = require('custom.saint.record.parser.primitive.Types')
 
 local function FlagsToObj(flagNum)
     return {
@@ -36,8 +37,8 @@ end
 ---@param binaryReader BinaryStringReader
 local ParseCompositeMasterFileList = function(binaryReader, context)
     local followFields = {
-        ['MAST'] = ParseMAST,
-        ['DATA'] = ParseDATA,
+        [FieldName.MAST] = ParseMAST,
+        [FieldName.DATA] = ParseDATA,
     }
     local followComposities = {
     }
@@ -47,19 +48,18 @@ local ParseCompositeMasterFileList = function(binaryReader, context)
 end
 
 local funcMap = {
-    ['HEDR'] = ParseHEDR,
+    [FieldName.HEDR] = ParseHEDR,
 }
 
 local compositeGroup = {
-    ['MAST'] = ParseCompositeMasterFileList,
+    [FieldName.MAST] = ParseCompositeMasterFileList,
 }
 
 local arrayType = {
-    ['MAST'] = 'MasterFiles',
+    [FieldName.MAST] = 'MasterFiles',
 }
 
 ---@param binaryReader BinaryStringReader
 return function(binaryReader)
-    assert(binaryReader:Peak(Size.INTEGER) == 'TES3')
     return BaseRecordParser(binaryReader, funcMap, compositeGroup, arrayType)
 end

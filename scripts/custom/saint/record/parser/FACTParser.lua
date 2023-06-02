@@ -1,8 +1,9 @@
 local BaseRecordParser = require('custom.saint.record.parser.BaseRecordParser')
 local BaseFieldsParser = require('custom.saint.record.parser.BaseFieldsParser')
+local HasFlag          = require('custom.saint.record.parser.primitive.Common')
+local FieldName        = require('custom.saint.record.parser.primitive.FieldName')
 local Size             = require('custom.saint.record.parser.primitive.Size')
 local Types            = require('custom.saint.record.parser.primitive.Types')
-local HasFlag          = require('custom.saint.record.parser.primitive.Common')
 
 local function FlagsToObj(flagNum)
     return {
@@ -69,8 +70,8 @@ end
 ---@param binaryReader BinaryStringReader
 local function ParseCompositeName(binaryReader, context)
     local followFields = {
-        ['ANAM'] = ParseANAM,
-        ['INTV'] = ParseINTV,
+        [FieldName.ANAM] = ParseANAM,
+        [FieldName.INTV] = ParseINTV,
     }
     local followComposities = {
     }
@@ -80,23 +81,22 @@ local function ParseCompositeName(binaryReader, context)
 end
 
 local funcMap = {
-    ['NAME'] = ParseNAME,
-    ['FNAM'] = ParseFNAM,
-    ['RNAM'] = ParseRNAM,
-    ['FADT'] = ParseFADT,
+    [FieldName.NAME] = ParseNAME,
+    [FieldName.FNAM] = ParseFNAM,
+    [FieldName.RNAM] = ParseRNAM,
+    [FieldName.FADT] = ParseFADT,
 }
 
 local compositeGroup = {
-    ['ANAM'] = ParseCompositeName,
+    [FieldName.ANAM] = ParseCompositeName,
 }
 
 local arrayType = {
-    ['RNAM'] = 'RNAM',
-    ['ANAM'] = 'FactionName'
+    [FieldName.RNAM] = FieldName.RNAM,
+    [FieldName.ANAM] = 'FactionDetails',
 }
 
 ---@param binaryReader BinaryStringReader
 return function(binaryReader)
-    assert(binaryReader:Peak(Size.INTEGER) == 'FACT')
     return BaseRecordParser(binaryReader, funcMap, compositeGroup, arrayType)
 end

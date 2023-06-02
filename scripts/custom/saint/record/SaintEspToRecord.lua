@@ -9,6 +9,10 @@
 ---TODO: Find way to be more performant and memory efficient.
 ---TODO: There's a lot of string copying that ideally should be avoided
 
+---TODO: Refactor parsing to create essentially the DB
+---TODO: and THEN construct object from the DB (or array of fields within records)
+---TODO: and don't have the base fields try to have exceptions to what it does
+
 local io                    = require('io')
 local config                = require('config')
 local SaintLogger           = require('custom.saint.common.logger.main')
@@ -69,6 +73,7 @@ local loadOrderSSS = SaintScriptSave('SaintEspToRecordLoadOrder')
 ---@class SaintEspToRecord
 local SaintEspToRecord = {}
 
+---@type table<RECORD_TYPE, fun(binaryReader: BinaryStringReader): { record: any, fields: table<FIELD_NAME, any> }>
 local Parsers = {
     ['ACTI'] = ACTIParser,
     ['ALCH'] = ALCHParser,
@@ -116,6 +121,8 @@ local Parsers = {
     ['TES3'] = TES3Parser,
 }
 
+---@param filePath string
+---@param recordHandler fun(item: { record: Record, fields: table<FIELD_NAME, any> })
 SaintEspToRecord.ReadEsp = function(filePath, recordHandler)
     local dataFile, err = io.open(filePath, 'rb')
     if err then
@@ -127,13 +134,8 @@ SaintEspToRecord.ReadEsp = function(filePath, recordHandler)
     local binaryStringReader = BinaryStringReader(binaryData);
     while binaryStringReader:HasData() do
         local nextRecordType = binaryStringReader:Peak(Size.INTEGER)
-        if not SupportedRecordStores[nextRecordType] then
-            -- logger:Warn('Unsupported record parsed: ( ' .. nextRecordType .. ' )! Will not use data!')
-        else
-            -- logger:Verbose('Parsing: ' .. nextRecordType)
-        end
-        local record = Parsers[nextRecordType](binaryStringReader)
-        recordHandler(record)
+        local item = Parsers[nextRecordType](binaryStringReader)
+        recordHandler(item)
     end
 end
 
@@ -170,6 +172,7 @@ SaintEspToRecord.CreateLoadOrderForFiles = function()
     return filteredDataFiles
 end
 
+---@param handler fun(item: { record: Record, fields: table<FIELD_NAME, any> })
 SaintEspToRecord.Execute = function(handler)
     local fileNames = SaintEspToRecord.CreateLoadOrderForFiles()
     for _, fileName in pairs(fileNames) do
@@ -178,8 +181,10 @@ SaintEspToRecord.Execute = function(handler)
     end
 end
 
-SaintEspToRecord.Execute(function(record)
-    -- print(record.name, record.flags, record.fields)
+SaintEspToRecord.Execute(function(item)
+    if item.record.name == 'ACTI' then
+        -- 
+    end
 end)
 
 return SaintEspToRecord

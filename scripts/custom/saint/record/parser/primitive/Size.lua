@@ -1,3 +1,4 @@
+---@enum SIZE
 local SIZE = {
     BYTE = 1,
     HALFWORD = 2,

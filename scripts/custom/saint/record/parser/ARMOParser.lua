@@ -1,7 +1,8 @@
 local BaseRecordParser   = require('custom.saint.record.parser.BaseRecordParser')
 local BaseFieldsParser   = require('custom.saint.record.parser.BaseFieldsParser')
-local Types              = require('custom.saint.record.parser.primitive.Types')
+local FieldName          = require('custom.saint.record.parser.primitive.FieldName')
 local Size               = require('custom.saint.record.parser.primitive.Size')
+local Types              = require('custom.saint.record.parser.primitive.Types')
 
 ---@param binaryReader BinaryStringReader
 local ParseNAME = function(binaryReader)
@@ -43,7 +44,7 @@ end
 ---@param binaryReader BinaryStringReader
 local ParseINDX = function(binaryReader)
     ---Saint Note: This could be an improper type, due to some strange language on UESP
-    binaryReader:Read(binaryReader.length, Types.INT8)
+    return binaryReader:Read(binaryReader.length, Types.INT8)
 end
 
 ---@param binaryReader BinaryStringReader
@@ -64,9 +65,9 @@ end
 ---@param binaryReader BinaryStringReader
 local ParseCompositeBipedObject = function(binaryReader, context)
     local followFields = {
-        ['INDX'] = ParseINDX,
-        ['BNAM'] = ParseBNAM,
-        ['CNAM'] = ParseCNAM,
+        [FieldName.INDX] = ParseINDX,
+        [FieldName.BNAM] = ParseBNAM,
+        [FieldName.CNAM] = ParseCNAM,
     }
     local followComposities = {
     }
@@ -76,25 +77,24 @@ local ParseCompositeBipedObject = function(binaryReader, context)
 end
 
 local funcMap = {
-    ['NAME'] = ParseNAME,
-    ['MODL'] = ParseMODL,
-    ['FNAM'] = ParseFNAM,
-    ['SCRI'] = ParseSCRI,
-    ['AODT'] = ParseAODT,
-    ['ITEX'] = ParseITEX,
-    ['ENAM'] = ParseENAM,
+    [FieldName.NAME] = ParseNAME,
+    [FieldName.MODL] = ParseMODL,
+    [FieldName.FNAM] = ParseFNAM,
+    [FieldName.SCRI] = ParseSCRI,
+    [FieldName.AODT] = ParseAODT,
+    [FieldName.ITEX] = ParseITEX,
+    [FieldName.ENAM] = ParseENAM,
 }
 
 local compositeGroup = {
-    ['INDX'] = ParseCompositeBipedObject,
+    [FieldName.INDX] = ParseCompositeBipedObject,
 }
 
 local arrayType = {
-    ['INDX'] = 'BIPED',
+    [FieldName.INDX] = 'BIPED',
 }
 
 ---@param binaryReader BinaryStringReader
 return function(binaryReader)
-    assert(binaryReader:Peak(Size.INTEGER) == 'ARMO')
     return BaseRecordParser(binaryReader, funcMap, compositeGroup, arrayType)
 end

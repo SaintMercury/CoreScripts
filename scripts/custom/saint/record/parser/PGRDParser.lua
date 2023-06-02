@@ -1,7 +1,8 @@
 local BaseRecordParser = require('custom.saint.record.parser.BaseRecordParser')
+local HasFlag          = require('custom.saint.record.parser.primitive.Common')
+local FieldName        = require('custom.saint.record.parser.primitive.FieldName')
 local Size             = require('custom.saint.record.parser.primitive.Size')
 local Types            = require('custom.saint.record.parser.primitive.Types')
-local HasFlag          = require('custom.saint.record.parser.primitive.Common')
 
 local function PathGridDataFlagsToObject(flagNum)
     return {
@@ -79,10 +80,10 @@ local function ParsePGRC(binaryReader, context)
 end
 
 local funcMap = {
-    ['DATA'] = ParseDATA,
-    ['NAME'] = ParseNAME,
-    ['PGRP'] = ParsePGRP,
-    ['PGRC'] = ParsePGRC,
+    [FieldName.DATA] = ParseDATA,
+    [FieldName.NAME] = ParseNAME,
+    [FieldName.PGRP] = ParsePGRP,
+    [FieldName.PGRC] = ParsePGRC,
 }
 
 local compositeGroup = {
@@ -93,6 +94,5 @@ local arrayType = {
 
 ---@param binaryReader BinaryStringReader
 return function(binaryReader)
-    assert(binaryReader:Peak(Size.INTEGER) == 'PGRD')
     return BaseRecordParser(binaryReader, funcMap, compositeGroup, arrayType)
 end

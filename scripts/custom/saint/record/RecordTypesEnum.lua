@@ -1,3 +1,4 @@
+---@enum RECORD_TYPE
 local RECORD_TYPES = {
     ACTIVATOR          = 'ACTI',
     POTION             = 'ALCH',
@@ -46,6 +47,4 @@ local RECORD_TYPES = {
     MASTER             = 'MAST',
 }
 
-return {
-    RECORD_TYPES = RECORD_TYPES,
-}
+return RECORD_TYPES

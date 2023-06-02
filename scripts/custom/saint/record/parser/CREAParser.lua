@@ -1,9 +1,9 @@
+local BaseFieldsParser = require('custom.saint.record.parser.BaseFieldsParser')
+local BaseRecordParser = require('custom.saint.record.parser.BaseRecordParser')
+local HasFlag          = require('custom.saint.record.parser.primitive.Common')
+local FieldName        = require('custom.saint.record.parser.primitive.FieldName')
 local Types            = require('custom.saint.record.parser.primitive.Types')
 local Size             = require('custom.saint.record.parser.primitive.Size')
-local BaseRecordParser = require('custom.saint.record.parser.BaseRecordParser')
-local BaseFieldsParser = require('custom.saint.record.parser.BaseFieldsParser')
-local ParseField       = require('custom.saint.record.parser.primitive.ParseField')
-local HasFlag          = require('custom.saint.record.parser.primitive.Common')
 
 local function FlagsToObj(flagNum)
     return {
@@ -163,8 +163,8 @@ end
 ---@param binaryReader BinaryStringReader
 local ParseCompositeDestination = function(binaryReader, context)
     local followFields = {
-        ['DODT'] = ParseDODT,
-        ['DNAM'] = ParseDNAM,
+        [FieldName.DODT] = ParseDODT,
+        [FieldName.DNAM] = ParseDNAM,
     }
     local followComposities = {
     }
@@ -182,13 +182,29 @@ local ParseAI_A = function(binaryReader)
 end
 
 ---@param binaryReader BinaryStringReader
-local ParseCNDT = function(binaryReader)
-    return binaryReader:Read(binaryReader.length)
+local function ParseCNDT_E(binaryReader, context)
+    context['CNDT_E'] = binaryReader:Read(binaryReader.length)
+    local ai_ef = context['AI_E'] or nil
+    if ai_ef then
+        ai_ef.cndt = context['CNDT_E']
+    end
+    return context['CNDT_E']
 end
 
 ---@param binaryReader BinaryStringReader
-local ParseAI_EF = function(binaryReader)
-    return {
+local function ParseCNDT_F(binaryReader, context)
+    context['CNDT_F'] = binaryReader:Read(binaryReader.length)
+    local ai_ef = context['AI_F'] or nil
+    if ai_ef then
+        ai_ef.cndt = context['CNDT_F']
+    end
+    return context['CNDT_F']
+end
+
+---@param binaryReader BinaryStringReader
+local function ParseAI_E(binaryReader, context)
+    local cndt = context['CNDT_E'] or nil
+    context['AI_E'] = {
         x = binaryReader:Read(Size.INTEGER, Types.FLOAT),
         y = binaryReader:Read(Size.INTEGER, Types.FLOAT),
         z = binaryReader:Read(Size.INTEGER, Types.FLOAT),
@@ -196,14 +212,51 @@ local ParseAI_EF = function(binaryReader)
         id = binaryReader:Read(32),
         unknown = binaryReader:Read(Size.BYTE, Types.UINT8),
         unused = binaryReader:Read(Size.BYTE, Types.UINT8),
-        cndt = (function()
-            if binaryReader:Peak(Size.BYTE) == 'CNDT' then
-                local field = ParseField(binaryReader)
-                return ParseCNDT(field.data)
-            end
-            return nil
-        end)()
+        cndt = cndt
     }
+    return context['AI_E']
+end
+
+---@param binaryReader BinaryStringReader
+local function ParseAI_F(binaryReader, context)
+    local cndt = context['CNDT_F'] or nil
+    context['AI_F'] = {
+        x = binaryReader:Read(Size.INTEGER, Types.FLOAT),
+        y = binaryReader:Read(Size.INTEGER, Types.FLOAT),
+        z = binaryReader:Read(Size.INTEGER, Types.FLOAT),
+        duration = binaryReader:Read(Size.HALFWORD, Types.UINT16),
+        id = binaryReader:Read(32),
+        unknown = binaryReader:Read(Size.BYTE, Types.UINT8),
+        unused = binaryReader:Read(Size.BYTE, Types.UINT8),
+        cndt = cndt
+    }
+    return context['AI_F']
+end
+
+---@param binaryReader BinaryStringReader
+local function ParseAI_EComposite(binaryReader, context)
+    local followFields = {
+        [FieldName.AI_E] = ParseAI_E,
+        [FieldName.CNDT] = ParseCNDT_E,
+    }
+    local followComposities = {
+    }
+    local followArrays = {
+    }
+    return BaseFieldsParser(binaryReader, followFields, followComposities, followArrays, context)
+end
+
+---@param binaryReader BinaryStringReader
+local function ParseAI_FComposite(binaryReader, context)
+    local followFields = {
+        [FieldName.AI_F] = ParseAI_F,
+        [FieldName.CNDT] = ParseCNDT_F,
+    }
+    local followComposities = {
+    }
+    local followArrays = {
+    }
+    return BaseFieldsParser(binaryReader, followFields, followComposities, followArrays, context)
 end
 
 ---@param binaryReader BinaryStringReader
@@ -242,41 +295,45 @@ local ParseAI_W = function(binaryReader)
 end
 
 local funcMap = {
-    ['NAME'] = ParseNAME,
-    ['MODL'] = ParseMODL,
-    ['CNAM'] = ParseCNAM,
-    ['FNAM'] = ParseFNAM,
-    ['SCRI'] = ParseSCRI,
-    ['NPDT'] = ParseNPDT,
-    ['FLAG'] = ParseFLAG,
-    ['XSCL'] = ParseXSCL,
-    ['NPCO'] = ParseNPCO,
-    ['NPCS'] = ParseNPCS,
-    ['AIDT'] = ParseAIDT,
-    ['AI_A'] = ParseAI_A,
-    ['AI_E'] = ParseAI_EF,
-    ['AI_F'] = ParseAI_EF,
-    ['AI_T'] = ParseAI_T,
-    ['AI_W'] = ParseAI_W,
+    [FieldName.NAME] = ParseNAME,
+    [FieldName.MODL] = ParseMODL,
+    [FieldName.CNAM] = ParseCNAM,
+    [FieldName.FNAM] = ParseFNAM,
+    [FieldName.SCRI] = ParseSCRI,
+    [FieldName.NPDT] = ParseNPDT,
+    [FieldName.FLAG] = ParseFLAG,
+    [FieldName.XSCL] = ParseXSCL,
+    [FieldName.NPCO] = ParseNPCO,
+    [FieldName.NPCS] = ParseNPCS,
+    [FieldName.AIDT] = ParseAIDT,
+
+    --- Saint Note: Initially thought these were a composite, but it doesn't seem to be the case
+    [FieldName.AI_A] = ParseAI_A,
+    [FieldName.AI_T] = ParseAI_T,
+    [FieldName.AI_W] = ParseAI_W,
+    --- Saint Note: These actually are composite types
+    -- [FieldName.AI_E] = ParseAI_EF,
+    -- [FieldName.AI_F] = ParseAI_EF,
 }
 
 local compositeGroup = {
-    ['DODT'] = ParseCompositeDestination,
+    [FieldName.DODT] = ParseCompositeDestination,
+    [FieldName.AI_E] = ParseAI_EComposite,
+    [FieldName.AI_F] = ParseAI_FComposite,
 }
 
 local arrayType = {
-    ['NPCO'] = 'NPCO',
-    ['NPCS'] = 'NPCS',
-    ['DODT'] = 'Destinations',
-    ['AI_A'] = 'AI',
-    ['AI_E'] = 'AI',
-    ['AI_F'] = 'AI',
-    ['AI_T'] = 'AI',
-    ['AI_W'] = 'AI',
+    [FieldName.NPCO] = FieldName.NPCO,
+    [FieldName.NPCS] = FieldName.NPCS,
+    [FieldName.DODT] = 'Destinations',
+    [FieldName.AI_A] = 'AI',
+    [FieldName.AI_E] = 'AI',
+    [FieldName.AI_F] = 'AI',
+    [FieldName.AI_T] = 'AI',
+    [FieldName.AI_W] = 'AI',
 }
 
 ---@param binaryReader BinaryStringReader
 return function(binaryReader)
-    assert(binaryReader:Peak(Size.INTEGER) == 'CREA')
     return BaseRecordParser(binaryReader, funcMap, compositeGroup, arrayType)
 end

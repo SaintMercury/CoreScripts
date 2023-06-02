@@ -1,3 +1,4 @@
+local FieldName          = require('custom.saint.record.parser.primitive.FieldName')
 local Types              = require('custom.saint.record.parser.primitive.Types')
 local Size               = require('custom.saint.record.parser.primitive.Size')
 local BaseRecordParser   = require('custom.saint.record.parser.BaseRecordParser')
@@ -62,9 +63,9 @@ end
 ---@param binaryReader BinaryStringReader
 local ParseCompositeBipedObject = function(binaryReader, context)
     local followFields = {
-        ['INDX'] = ParseINDX,
-        ['BNAM'] = ParseBNAM,
-        ['CNAM'] = ParseCNAM,
+        [FieldName.INDX] = ParseINDX,
+        [FieldName.BNAM] = ParseBNAM,
+        [FieldName.CNAM] = ParseCNAM,
     }
     local followComposities = {
     }
@@ -74,25 +75,24 @@ local ParseCompositeBipedObject = function(binaryReader, context)
 end
 
 local funcMap = {
-    ['NAME'] = ParseNAME,
-    ['MODL'] = ParseMODL,
-    ['FNAM'] = ParseFNAM,
-    ['CTDT'] = ParseCTDT,
-    ['SCRI'] = ParseSCRI,
-    ['ITEX'] = ParseITEX,
-    ['ENAM'] = ParseENAM,
+    [FieldName.NAME] = ParseNAME,
+    [FieldName.MODL] = ParseMODL,
+    [FieldName.FNAM] = ParseFNAM,
+    [FieldName.CTDT] = ParseCTDT,
+    [FieldName.SCRI] = ParseSCRI,
+    [FieldName.ITEX] = ParseITEX,
+    [FieldName.ENAM] = ParseENAM,
 }
 
 local compositeGroup = {
-    ['INDX'] = ParseCompositeBipedObject,
+    [FieldName.INDX] = ParseCompositeBipedObject,
 }
 
 local arrayType = {
-    ['INDX'] = 'BIPED',
+    [FieldName.INDX] = 'BIPED',
 }
 
 ---@param binaryReader BinaryStringReader
 return function(binaryReader)
-    assert(binaryReader:Peak(Size.INTEGER) == 'CLOT')
     return BaseRecordParser(binaryReader, funcMap, compositeGroup, arrayType)
 end

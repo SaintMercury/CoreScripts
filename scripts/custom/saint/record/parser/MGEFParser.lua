@@ -1,7 +1,8 @@
 local BaseRecordParser = require('custom.saint.record.parser.BaseRecordParser')
+local HasFlag          = require('custom.saint.record.parser.primitive.Common')
+local FieldName        = require('custom.saint.record.parser.primitive.FieldName')
 local Size             = require('custom.saint.record.parser.primitive.Size')
 local Types            = require('custom.saint.record.parser.primitive.Types')
-local HasFlag          = require('custom.saint.record.parser.primitive.Common')
 
 local function FlagsToObj(flagNum)
     return {
@@ -109,19 +110,19 @@ local function ParseDESC(binaryReader)
 end
 
 local funcMap = {
-    ['INDX'] = ParseINDX,
-    ['MEDT'] = ParseMEDT,
-    ['ITEX'] = ParseITEX,
-    ['PTEX'] = ParsePTEX,
-    ['BSND'] = ParseBSND,
-    ['CSND'] = ParseCSND,
-    ['HSND'] = ParseHSND,
-    ['ASND'] = ParseASND,
-    ['BVFX'] = ParseBVFX,
-    ['CVFX'] = ParseCVFX,
-    ['HVFX'] = ParseHVFX,
-    ['AVFX'] = ParseAVFX,
-    ['DESC'] = ParseDESC,
+    [FieldName.INDX] = ParseINDX,
+    [FieldName.MEDT] = ParseMEDT,
+    [FieldName.ITEX] = ParseITEX,
+    [FieldName.PTEX] = ParsePTEX,
+    [FieldName.BSND] = ParseBSND,
+    [FieldName.CSND] = ParseCSND,
+    [FieldName.HSND] = ParseHSND,
+    [FieldName.ASND] = ParseASND,
+    [FieldName.BVFX] = ParseBVFX,
+    [FieldName.CVFX] = ParseCVFX,
+    [FieldName.HVFX] = ParseHVFX,
+    [FieldName.AVFX] = ParseAVFX,
+    [FieldName.DESC] = ParseDESC,
 }
 
 local compositeGroup = {
@@ -132,6 +133,5 @@ local arrayType = {
 
 ---@param binaryReader BinaryStringReader
 return function(binaryReader)
-    assert(binaryReader:Peak(Size.INTEGER) == 'MGEF')
     return BaseRecordParser(binaryReader, funcMap, compositeGroup, arrayType)
 end

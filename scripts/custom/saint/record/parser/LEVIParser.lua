@@ -1,5 +1,6 @@
 local BaseFieldsParser = require('custom.saint.record.parser.BaseFieldsParser')
 local BaseRecordParser = require('custom.saint.record.parser.BaseRecordParser')
+local FieldName        = require('custom.saint.record.parser.primitive.FieldName')
 local Size             = require('custom.saint.record.parser.primitive.Size')
 local Types            = require('custom.saint.record.parser.primitive.Types')
 
@@ -36,8 +37,8 @@ end
 ---@param binaryReader BinaryStringReader
 local ParseCompositeCreatures = function(binaryReader, context)
     local followFields = {
-        ['INAM'] = ParseINAM,
-        ['INTV'] = ParseINTV,
+        [FieldName.INAM] = ParseINAM,
+        [FieldName.INTV] = ParseINTV,
     }
     local followComposities = {
     }
@@ -47,22 +48,21 @@ local ParseCompositeCreatures = function(binaryReader, context)
 end
 
 local funcMap = {
-    ['NAME'] = ParseNAME,
-    ['DATA'] = ParseDATA,
-    ['NNAM'] = ParseNNAM,
-    ['INDX'] = ParseINDX,
+    [FieldName.NAME] = ParseNAME,
+    [FieldName.DATA] = ParseDATA,
+    [FieldName.NNAM] = ParseNNAM,
+    [FieldName.INDX] = ParseINDX,
 }
 
 local compositeGroup = {
-    ['INAM'] = ParseCompositeCreatures,
+    [FieldName.INAM] = ParseCompositeCreatures,
 }
 
 local arrayType = {
-    ['INAM'] = 'Items',
+    [FieldName.INAM] = 'Items',
 }
 
 ---@param binaryReader BinaryStringReader
 return function(binaryReader)
-    assert(binaryReader:Peak(Size.INTEGER) == 'LEVI')
     return BaseRecordParser(binaryReader, funcMap, compositeGroup, arrayType)
 end

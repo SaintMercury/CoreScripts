@@ -16,8 +16,8 @@ function BinaryStringReader:__init(binaryData)
     self.index = 1
 end
 
----@param byteCount integer
----@param type string
+---@param byteCount SIZE
+---@param type DATA_TYPE
 ---@return number
 ---@overload fun(self: BinaryStringReader, byteCount: integer): string
 function BinaryStringReader:Read(byteCount, type)

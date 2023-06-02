@@ -3,5 +3,5 @@ local Types      = require('custom.saint.record.parser.primitive.Types')
 
 ---@param binaryReader BinaryStringReader
 return function (binaryReader)
-    return binaryReader:Read(Size.INTEGER, Types.UINT32)
+    binaryReader:Read(Size.INTEGER, Types.UINT32)
 end

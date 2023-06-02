@@ -1,4 +1,5 @@
 local BaseRecordParser = require('custom.saint.record.parser.BaseRecordParser')
+local FieldName        = require('custom.saint.record.parser.primitive.FieldName')
 local Size             = require('custom.saint.record.parser.primitive.Size')
 local Types            = require('custom.saint.record.parser.primitive.Types')
 
@@ -41,24 +42,23 @@ local ParseSCRI = function(binaryReader)
 end
 
 local funcMap = {
-    ['NAME'] = ParseNAME,
-    ['MODL'] = ParseMODL,
-    ['FNAM'] = ParseFNAM,
-    ['CNDT'] = ParseCNDT,
-    ['FLAG'] = ParseFLAG,
-    ['NPCO'] = ParseNPCO,
-    ['SCRI'] = ParseSCRI,
+    [FieldName.NAME] = ParseNAME,
+    [FieldName.MODL] = ParseMODL,
+    [FieldName.FNAM] = ParseFNAM,
+    [FieldName.CNDT] = ParseCNDT,
+    [FieldName.FLAG] = ParseFLAG,
+    [FieldName.NPCO] = ParseNPCO,
+    [FieldName.SCRI] = ParseSCRI,
 }
 
 local compositeGroup = {
 }
 
 local arrayType = {
-    ['NPCO'] = 'NPCO'
+    [FieldName.NPCO] = FieldName.NPCO,
 }
 
 ---@param binaryReader BinaryStringReader
 return function(binaryReader)
-    assert(binaryReader:Peak(Size.INTEGER) == 'CONT')
     return BaseRecordParser(binaryReader, funcMap, compositeGroup, arrayType)
 end

@@ -1,4 +1,5 @@
-local Types = {
+---@enum DATA_TYPE
+local DATA_TYPE = {
     FLOAT = 'float',
     UINT8 = 'uint8_t',
     UINT16 = 'uint16_t',
@@ -9,4 +10,4 @@ local Types = {
     INT32 = 'int32_t',
     BOOLEAN = 'bool',
 }
-return Types
+return DATA_TYPE

@@ -1,7 +1,8 @@
 local BaseRecordParser = require('custom.saint.record.parser.BaseRecordParser')
+local HasFlag          = require('custom.saint.record.parser.primitive.Common')
+local FieldName        = require('custom.saint.record.parser.primitive.FieldName')
 local Size             = require('custom.saint.record.parser.primitive.Size')
 local Types            = require('custom.saint.record.parser.primitive.Types')
-local HasFlag          = require('custom.saint.record.parser.primitive.Common')
 
 local function FlagsToObj(flagNum)
     return {
@@ -41,20 +42,19 @@ local function ParseENAM(binaryReader)
 end
 
 local funcMap = {
-    ['NAME'] = ParseNAME,
-    ['ENDT'] = ParseENDT,
-    ['ENAM'] = ParseENAM,
+    [FieldName.NAME] = ParseNAME,
+    [FieldName.ENDT] = ParseENDT,
+    [FieldName.ENAM] = ParseENAM,
 }
 
 local compositeGroup = {
 }
 
 local arrayType = {
-    ['ENAM'] = 'ENAM',
+    [FieldName.ENAM] = FieldName.ENAM,
 }
 
 ---@param binaryReader BinaryStringReader
 return function(binaryReader)
-    assert(binaryReader:Peak(Size.INTEGER) == 'ENCH')
     return BaseRecordParser(binaryReader, funcMap, compositeGroup, arrayType)
 end

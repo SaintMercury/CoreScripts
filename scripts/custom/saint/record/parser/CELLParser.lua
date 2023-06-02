@@ -1,3 +1,4 @@
+local FieldName        = require('custom.saint.record.parser.primitive.FieldName')
 local Types            = require('custom.saint.record.parser.primitive.Types')
 local Size             = require('custom.saint.record.parser.primitive.Size')
 local BaseRecordParser = require('custom.saint.record.parser.BaseRecordParser')
@@ -100,9 +101,9 @@ end
 ---@param binaryReader BinaryStringReader
 local ParseCompositeMovedReference = function(binaryReader, context)
     local followFields = {
-        ['MVRF'] = ParseMVRF,
-        ['CNAM'] = ParseCNAM,
-        ['CNDT'] = ParseCNDT,
+        [FieldName.MVRF] = ParseMVRF,
+        [FieldName.CNAM] = ParseCNAM,
+        [FieldName.CNDT] = ParseCNDT,
     }
     local followComposities = {
     }
@@ -134,7 +135,7 @@ end
 ---@param binaryReader BinaryStringReader
 local ParseINTV = function(binaryReader)
     ---Saint Note: Could be either a uint32 or a float :(
-    return binaryReader:Read(Size.INTEGER, Types.FLOAT)
+    return binaryReader:Read(Size.INTEGER, Types.UINT32)
 end
 
 ---@param binaryReader BinaryStringReader
@@ -192,8 +193,8 @@ end
 ---@param binaryReader BinaryStringReader
 local ParseCompositeFaction = function(binaryReader, context)
     local followFields = {
-        ['CNAM'] = ParseCNAM,
-        ['INDX'] = ParseINDX,
+        [FieldName.CNAM] = ParseCNAM,
+        [FieldName.INDX] = ParseINDX,
     }
     local followComposities = {
     }
@@ -210,8 +211,8 @@ end
 ---@param binaryReader BinaryStringReader
 local ParseCompositeDestination = function(binaryReader, context)
     local followFields = {
-        ['DODT'] = ParseDODT,
-        ['DNAM'] = ParseDNAM,
+        [FieldName.DODT] = ParseDODT,
+        [FieldName.DNAM] = ParseDNAM,
     }
     local followComposities = {
     }
@@ -228,54 +229,53 @@ end
 ---@param binaryReader BinaryStringReader
 local ParseCompositeFormReference = function(binaryReader, context)
     local followFields = {
-        ['FRMR'] = ParseFRMR,
-        ['NAME'] = ParseNAME,
-        ['UNAM'] = ParseUNAM,
-        ['XSCL'] = ParseXSCL,
-        ['XSOL'] = ParseXSOL,
-        ['XCHG'] = ParseXCHG,
-        ['INTV'] = ParseINTV,
-        ['ANAM'] = ParseANAM,
-        ['BNAM'] = ParseBNAM,
-        ['NAM9'] = ParseNAM9,
-        ['FLTV'] = ParseFLTV,
-        ['KNAM'] = ParseKNAM,
-        ['TNAM'] = ParseTNAM,
-        ['ZNAM'] = ParseZNAM,
-        ['DATA'] = ParseDODT,
+        [FieldName.FRMR] = ParseFRMR,
+        [FieldName.NAME] = ParseNAME,
+        [FieldName.UNAM] = ParseUNAM,
+        [FieldName.XSCL] = ParseXSCL,
+        [FieldName.XSOL] = ParseXSOL,
+        [FieldName.XCHG] = ParseXCHG,
+        [FieldName.INTV] = ParseINTV,
+        [FieldName.ANAM] = ParseANAM,
+        [FieldName.BNAM] = ParseBNAM,
+        [FieldName.NAM9] = ParseNAM9,
+        [FieldName.FLTV] = ParseFLTV,
+        [FieldName.KNAM] = ParseKNAM,
+        [FieldName.TNAM] = ParseTNAM,
+        [FieldName.ZNAM] = ParseZNAM,
+        [FieldName.DATA] = ParseDODT,
     }
     local followComposities = {
-        ['CNAM'] = ParseCompositeFaction,
-        ['DODT'] = ParseCompositeDestination,
+        [FieldName.CNAM] = ParseCompositeFaction,
+        [FieldName.DODT] = ParseCompositeDestination,
     }
     local followArrays = {
-        ['DODT'] = 'Destinations',
+        [FieldName.DODT] = 'Destinations',
     }
     return BaseFieldsParser(binaryReader, followFields, followComposities, followArrays, context)
 end
 
 local funcMap = {
-    ['NAME'] = ParseNAME,
-    ['DATA'] = ParseDATA,
-    ['RGNN'] = ParseRGNN,
-    ['NAM5'] = ParseNAM5,
-    ['WHGT'] = ParseWHGT,
-    ['AMBI'] = ParseAMBI,
-    ['NAM0'] = ParseNAM0,
+    [FieldName.NAME] = ParseNAME,
+    [FieldName.DATA] = ParseDATA,
+    [FieldName.RGNN] = ParseRGNN,
+    [FieldName.NAM5] = ParseNAM5,
+    [FieldName.WHGT] = ParseWHGT,
+    [FieldName.AMBI] = ParseAMBI,
+    [FieldName.NAM0] = ParseNAM0,
 }
 
 local compositeGroup = {
-    ['MVRF'] = ParseCompositeMovedReference,
-    ['FRMR'] = ParseCompositeFormReference,
+    [FieldName.MVRF] = ParseCompositeMovedReference,
+    [FieldName.FRMR] = ParseCompositeFormReference,
 }
 
 local arrayType = {
-    ['MVRF'] = 'MovedReferences',
-    ['FRMR'] = 'FormReferences',
+    [FieldName.MVRF] = 'MovedReferences',
+    [FieldName.FRMR] = 'FormReferences',
 }
 
 ---@param binaryReader BinaryStringReader
 return function(binaryReader)
-    assert(binaryReader:Peak(Size.INTEGER) == 'CELL')
     return BaseRecordParser(binaryReader, funcMap, compositeGroup, arrayType)
 end
