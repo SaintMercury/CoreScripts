@@ -151,7 +151,7 @@ Most of the events are the same as `eventHandler.lua` functions, with some extra
     `objects` has the same structure as in `OnObjectActivate`
 * OnVideoPlay(pid, videos)
     `videos` is a list of video filenames 
-* OnRecordDynamic(pid)
+* OnRecordDynamic(pid, recordTable, storeType)
 * OnWorldKillCount(pid)
 * OnWorldMap(pid)
 * OnWorldWeather(pid)

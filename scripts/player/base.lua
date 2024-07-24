@@ -346,11 +346,11 @@ function BasePlayer:FinishLogin()
             self:LoadReputation()
         end
 
-        if config.shareKills then
-            WorldInstance:LoadKills(self.pid)
-        else
-            self:LoadKills()
-        end
+		if config.shareKills == true then
+			WorldInstance:LoadKills(self.pid)
+		else
+			self:LoadKills(self.pid, false)
+		end	
 
         self:LoadSpecialStates()
 
@@ -442,7 +442,11 @@ function BasePlayer:EndCharGen()
         WorldInstance:LoadTopics(self.pid)
     end
 
-    WorldInstance:LoadKills(self.pid)
+	if config.shareKills == true then
+		WorldInstance:LoadKills(self.pid)
+	else
+		self:LoadKills(self.pid, false)
+	end	
 
     if spawnUsed ~= nil and spawnUsed.cellDescription ~= nil then
         tes3mp.SetCell(self.pid, spawnUsed.cellDescription)
@@ -1549,6 +1553,21 @@ end
 
 function BasePlayer:SaveClientScriptGlobal(variables)
     stateHelper:SaveClientScriptGlobal(self, variables)
+end
+
+function BasePlayer:LoadKills(pid, forEveryone)
+    
+    if self.data.kills == nil then
+        self.data.kills = {}
+    end    
+    
+    tes3mp.ClearKillChanges()
+    
+    for refId, killCount in pairs(self.data.kills) do
+        tes3mp.AddKill(refId, killCount)
+    end
+
+    tes3mp.SendWorldKillCount(pid, forEveryone)
 end
 
 function BasePlayer:LoadDestinationOverrides(pid)
