@@ -7,10 +7,10 @@ config.dataPath = tes3mp.GetDataPath()
 config.gameMode = "Phoenixian"
 
 -- Time to login, in seconds
-config.loginTime = 60
+config.loginTime = 120
 
 -- How many clients are allowed to connect from the same IP address
-config.maxClientsPerIP = 3
+config.maxClientsPerIP = 10
 
 -- The difficulty level used by default
 -- Note: In OpenMW, the difficulty slider goes between -100 and 100, with 0 as the default,
@@ -31,7 +31,7 @@ config.gameSettings = {
     { name = "strength influences hand to hand", value = 2 },
     { name = "use magic item animations", value = false },
     { name = "normalise race speed", value = false },
-    { name = "uncapped damage fatigue", value = false },
+    { name = "uncapped damage fatigue", value = true },
     { name = "NPCs avoid collisions", value = true },
     -- { name = "swim upward correction", value = false },
     { name = "trainers training skills based on base skill", value = true },
@@ -46,7 +46,7 @@ config.vrSettings = {
 
 -- The world time used for a newly created world
 config.defaultTimeTable = { year = 427, month = 7, day = 16, hour = 9,
-    daysPassed = 1, dayTimeScale = 30, nightTimeScale = 40 }
+    daysPassed = 1, dayTimeScale = 0, nightTimeScale = 0 }
 
 -- The chat window instructions that show up when players join the server
 config.chatWindowInstructions = color.White .. "Use " .. color.Yellow .. "Y" .. color.White .. " by default to chat or change it" ..

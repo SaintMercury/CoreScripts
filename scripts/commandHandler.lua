@@ -584,6 +584,23 @@ function commandHandler.ProcessCommand(pid, cmd)
             WorldInstance:LoadTime(pid, true)
         end
 
+    elseif cmd[1] == "setweather" and moderator then
+
+        local inputValue = tonumber(cmd[2])
+
+        if type(inputValue) == "number" then
+            local regionName = tes3mp.GetRegion(pid):lower()
+            tes3mp.LogMessage(2, regionName)
+            tableHelper.print(WorldInstance.storedRegions, 10, "  ")
+            local region = WorldInstance.storedRegions[regionName] or { visitors = {}, forcedWeatherUpdatePids = {} }
+            region.previousWeather = region.currentWeather
+            region.currentWeather = inputValue
+            region.nextWeather = inputValue
+            region.forcedWeatherUpdatePids = tablehelper.shallowCopy(region.visitors)
+            tableHelper.print(WorldInstance.storedRegions, 10, "  ")
+            tes3mp.SendMessage(pid, "Changing weather in region: (" .. regionName .. "). relog all clients fo affect", true)
+        end
+
     elseif cmd[1] == "settimescale" and moderator then
 
         local inputPeriod = string.lower(tostring(cmd[2]))

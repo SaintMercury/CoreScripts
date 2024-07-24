@@ -3,7 +3,7 @@
 ---@field fatigue number|'preserve'
 ---@field magicka number|'preserve'
 local ScriptConfig = {
-    bleedoutTime = 30,
+    bleedoutTime = 9999,
     recordRefId = "saintrevivemarker",
     model = "o/contain_corpse20.nif",
     objectType = "miscellaneous", -- tied to above value
